@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  app:
+    # 使用当前目录下的 Dockerfile 构建镜像
+    build: .
+    # 设置镜像名称 (可选, build 时已指定)
+    image: fastapi-shortener
+    # 容器名称
+    container_name: shortener_app_compose
+    # 端口映射: <宿主机端口>:<容器端口>
+    ports:
+      - "8000:8000"
+    # 卷挂载:
+    # 将本地当前目录 (.) 挂载到容器的 /app 目录
+    # 这使得本地代码的修改能直接反映到容器内，方便开发和热重载
+    volumes:
+      - .:/app
+      # (可选) 持久化 SQLite 数据库
+      # 创建一个名为 'db_data' 的命名卷来存储数据库文件
+      # 需要修改 database.py 中 SQLALCHEMY_DATABASE_URL 指向容器内的持久化路径，
+      # 例如 "sqlite:////app/data/shortener.db"
+      # 并确保 /app/data 目录存在或被创建
+      # - db_data:/app/data
+    # 覆盖 Dockerfile 中的 CMD，添加 --reload 以实现热重载
+    # 注意：热重载主要用于开发环境
+    command: uvicorn main:app --reload --host 0.0.0.0 --port 8000
+    # (可选) 如果需要从 .env 文件加载环境变量到容器
+    # env_file:
+    #   - .env
+
+# (可选) 定义命名卷用于持久化数据
+# volumes:
+#   db_data:

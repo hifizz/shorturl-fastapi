@@ -54,8 +54,9 @@
         // 检查URL参数，初始化隐藏状态
         useEffect(() => {
           const urlParams = new URLSearchParams(window.location.search);
-          const noArticleUrl = urlParams.get('no-article-url');
-          if (noArticleUrl === 'true') {
+          const embedForDemo = urlParams.get('embed-for-demo');
+          console.log('embedForDemo', embedForDemo);
+          if (embedForDemo === 'true') {
             setHideArticleUrl(true);
           }
 
@@ -159,7 +160,7 @@
                      ${
                        isLoading
                          ? 'bg-gray-400 dark:bg-neutral-600 cursor-not-allowed'
-                         : 'bg-gradient-to-r from-primary to-secondary hover:opacity-90 active:shadow-sm shadow-lg  hover:shadow-lg'
+                         : 'bg-gradient-to-r from-primary to-secondary hover:opacity-90 dark:hover:bg-neutral-300/30 dark:active:bg-neutral-600/60 active:shadow-sm shadow-lg  hover:shadow-lg'
                      }`}
                 >
                   {isLoading ? (
@@ -209,7 +210,7 @@
                     <a
                       href={shortUrl}
                       target="_blank"
-                      className="text-primary dark:text-blue-400 font-md mr-2 text-ellipsis overflow-hidden"
+                      className="text-primary dark:text-green-400 dark:text-sm mr-2 text-ellipsis overflow-hidden"
                       rel="noopener noreferrer"
                     >
                       {shortUrl}

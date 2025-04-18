@@ -1,0 +1,35 @@
+# 忽略 Python 虚拟环境
+.venv/
+venv/
+
+# 忽略 Python 字节码和缓存
+__pycache__/
+*.py[cod]
+*$py.class
+
+# 忽略特定于 IDE 的文件/目录
+.vscode/
+.idea/
+
+# 忽略 Git 相关文件
+.git/
+.gitignore
+
+# 忽略 Docker 相关文件自身 (可选)
+Dockerfile
+.dockerignore
+docker-compose.yml
+
+# 忽略本地数据库文件 (如果不想包含在镜像中)
+shortener.db
+*.db
+*.sqlite
+*.sqlite3
+
+# 忽略测试报告或覆盖率文件
+.pytest_cache/
+.coverage
+htmlcov/
+
+# 忽略可能的本地配置文件
+.env
