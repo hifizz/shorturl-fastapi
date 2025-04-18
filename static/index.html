@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html class="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>URL 缩短器</title>
+    <!-- React -->
+    <script
+      src="https://unpkg.com/react@18/umd/react.development.js"
+      crossorigin
+    ></script>
+    <script
+      src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"
+      crossorigin
+    ></script>
+    <!-- Babel -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- Tailwind CSS Play CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Tailwind 配置 -->
+    <script type="text/tailwindcss">
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              primary: '#4f46e5',
+              secondary: '#8b5cf6',
+            }
+          }
+        }
+      }
+    </script>
+  </head>
+  <body class="bg-gray-50 dark:bg-neutral-950 transition-colors duration-200">
+    <div id="root"></div>
+
+    <script type="text/babel">
+      console.log(
+        'Brand info: 本文章来自于：子林的博客。文章对应内容URL：https://zilin.im/blog/learning/python-getting-started'
+      );
+      const { useState, useEffect } = React;
+      const { createRoot } = ReactDOM;
+
+      function App() {
+        const [longUrl, setLongUrl] = useState('');
+        const [shortUrl, setShortUrl] = useState('');
+        const [error, setError] = useState('');
+        const [isLoading, setIsLoading] = useState(false);
+        const [isCopied, setIsCopied] = useState(false);
+        const [hideArticleUrl, setHideArticleUrl] = useState(false);
+        const [darkMode, setDarkMode] = useState(false);
+
+        // 检查URL参数，初始化隐藏状态
+        useEffect(() => {
+          const urlParams = new URLSearchParams(window.location.search);
+          const noArticleUrl = urlParams.get('no-article-url');
+          if (noArticleUrl === 'true') {
+            setHideArticleUrl(true);
+          }
+
+          // 检查用户系统偏好和本地存储
+          const storedTheme = localStorage.getItem('theme');
+          if (
+            storedTheme === 'dark' ||
+            (!storedTheme &&
+              window.matchMedia('(prefers-color-scheme: dark)').matches)
+          ) {
+            setDarkMode(true);
+            document.documentElement.classList.add('dark');
+          } else {
+            document.documentElement.classList.remove('dark');
+          }
+        }, []);
+
+        const handleSubmit = async (e) => {
+          e.preventDefault();
+
+          // 清空之前的结果和错误
+          setShortUrl('');
+          setError('');
+          setIsLoading(true);
+
+          try {
+            // 调用后端API
+            const response = await fetch('/shorten', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ long_url: longUrl }),
+            });
+
+            if (!response.ok) {
+              const errorData = await response.json();
+              throw new Error(
+                errorData.detail || `请求错误! 状态码: ${response.status}`
+              );
+            }
+
+            const data = await response.json();
+            const newShortUrl = `${window.location.origin}/${data.short_code}`;
+            setShortUrl(newShortUrl);
+          } catch (error) {
+            console.error('Error:', error);
+            setError(`出错了: ${error.message}`);
+          } finally {
+            setIsLoading(false);
+          }
+        };
+
+        const copyToClipboard = () => {
+          if (!shortUrl || !navigator.clipboard) {
+            alert('复制失败: 剪贴板API不支持或者 iframe 阻止复制');
+            return;
+          }
+
+          navigator.clipboard
+            .writeText(shortUrl)
+            .then(() => {
+              setIsCopied(true);
+              setTimeout(() => setIsCopied(false), 2000);
+            })
+            .catch((err) => {
+              console.error('复制失败:', err);
+            });
+        };
+
+        return (
+          <div className="min-h-screen flex flex-col items-center justify-center p-4">
+            {/* 暗黑模式切换按钮 */}
+
+            <div className="w-full max-w-md bg-white dark:bg-neutral-900 rounded-xl shadow-lg p-8 transition-all duration-300 hover:shadow-xl">
+              <div className="text-center mb-8">
+                <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-2">
+                  短网址生成器
+                </h1>
+                <p className="text-gray-500 dark:text-gray-400">
+                  将你的长网址转换成短小易用的链接
+                </p>
+              </div>
+
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="relative">
+                  <input
+                    type="url"
+                    value={longUrl}
+                    onChange={(e) => setLongUrl(e.target.value)}
+                    placeholder="输入要缩短的长网址"
+                    required
+                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-600/50 transition-all duration-200 outline-none bg-white dark:bg-neutral-700 text-gray-800 dark:text-gray-200"
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className={`w-full py-3 px-4 text-gray-600 dark:text-gray-200 rounded-lg border dark:border-neutral-700 transition-all duration-200 cursor-pointer
+                     ${
+                       isLoading
+                         ? 'bg-gray-400 dark:bg-neutral-600 cursor-not-allowed'
+                         : 'bg-gradient-to-r from-primary to-secondary hover:opacity-90 active:shadow-sm shadow-lg  hover:shadow-lg'
+                     }`}
+                >
+                  {isLoading ? (
+                    <span className="flex items-center justify-center">
+                      <svg
+                        className="animate-spin -ml-1 mr-2 h-4 w-4"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        ></circle>
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        ></path>
+                      </svg>
+                      处理中...
+                    </span>
+                  ) : (
+                    '生成短链接'
+                  )}
+                </button>
+              </form>
+
+              {error && (
+                <div className="mt-6 p-3 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg">
+                  <p className="text-red-600 dark:text-red-400 text-center">
+                    {error}
+                  </p>
+                </div>
+              )}
+
+              {shortUrl && (
+                <div className="mt-6 p-4 bg-green-50 dark:bg-green-900/20 border border-blue-100 dark:border-green-800 rounded-lg">
+                  <p className="text-sm text-green-800 dark:text-green-400 font-medium mb-2">
+                    你的短网址已生成:
+                  </p>
+                  <div className="flex items-center">
+                    <a
+                      href={shortUrl}
+                      target="_blank"
+                      className="text-primary dark:text-blue-400 font-md mr-2 text-ellipsis overflow-hidden"
+                      rel="noopener noreferrer"
+                    >
+                      {shortUrl}
+                    </a>
+                    <button
+                      onClick={copyToClipboard}
+                      className="ml-auto flex-shrink-0 text-xs px-2 py-1 rounded bg-primary dark:bg-primary/80 text-green-800 dark:text-white hover:bg-opacity-90 transition-colors duration-200"
+                    >
+                      {isCopied ? '已复制!' : '复制'}
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              <div className="mt-8 text-left text-xs/5 text-gray-400 dark:text-gray-500 line-height-1.5">
+                {!hideArticleUrl && (
+                  <p className="from-article-url">
+                    本 Demo 来自于博客文章：
+                    <a
+                      href="https://zilin.im/blog/learning/python-getting-started#任务-19用-fastapi-托管静态文件并实现前端交互"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="underline underline-offset-4 hover:text-gray-700 dark:hover:text-gray-300 transition-all duration-200"
+                    >
+                      在 AI 的帮助下，只花了 3 个小时就入门并上线了我的 Python
+                      短网址应用
+                    </a>
+                  </p>
+                )}
+                <p className="mt-2">
+                  注意：应用由 Vercel 托管，仅用于演示，sqlite
+                  数据库在重新部署即销毁，请勿用于生产环境
+                </p>
+              </div>
+              <div className="text-center text-xs text-gray-400"></div>
+            </div>
+          </div>
+        );
+      }
+
+      const container = document.getElementById('root');
+      const root = createRoot(container);
+      root.render(<App />);
+    </script>
+  </body>
+</html>
