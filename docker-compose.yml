@@ -8,27 +8,23 @@ services:
     image: fastapi-shortener
     # 容器名称
     container_name: shortener_app_compose
-    # 端口映射: <宿主机端口>:<容器端口>
-    ports:
-      - "8000:8000"
-    # 卷挂载:
-    # 将本地当前目录 (.) 挂载到容器的 /app 目录
-    # 这使得本地代码的修改能直接反映到容器内，方便开发和热重载
-    volumes:
-      - .:/app
-      # (可选) 持久化 SQLite 数据库
-      # 创建一个名为 'db_data' 的命名卷来存储数据库文件
-      # 需要修改 database.py 中 SQLALCHEMY_DATABASE_URL 指向容器内的持久化路径，
-      # 例如 "sqlite:////app/data/shortener.db"
-      # 并确保 /app/data 目录存在或被创建
-      # - db_data:/app/data
-    # 覆盖 Dockerfile 中的 CMD，添加 --reload 以实现热重载
-    # 注意：热重载主要用于开发环境
-    command: uvicorn main:app --reload --host 0.0.0.0 --port 8000
+    # 使用 expose 让端口在 Docker 网络内部可见
+    expose:
+      - "8000"
+    # 修改为生产环境的启动命令 (使用 Gunicorn)
+    command: gunicorn -w 4 -k uvicorn.workers.UvicornWorker main:app -b 0.0.0.0:8000
     # (可选) 如果需要从 .env 文件加载环境变量到容器
     # env_file:
     #   - .env
+    # 连接到共享网络
+    networks:
+      - webproxy
 
 # (可选) 定义命名卷用于持久化数据
 # volumes:
 #   db_data:
+   scp -i "zilin-im.pem" -r ~/side/code-playground/caddy-config ubuntu@ec2-34-224-25-34.compute-1.amazonaws.com:/home/ubuntu/
+# 定义外部网络
+networks:
+  webproxy:
+    external: true

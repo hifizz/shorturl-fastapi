@@ -1,35 +1,47 @@
-# 忽略 Python 虚拟环境
-.venv/
-venv/
+# Git files
+.git
+.gitignore
 
-# 忽略 Python 字节码和缓存
+# Python virtual environment
+.venv
+venv/
+env/
+
+# Python cache files
 __pycache__/
 *.py[cod]
 *$py.class
 
-# 忽略特定于 IDE 的文件/目录
+# IDE / Editor specific files
 .vscode/
 .idea/
+*.sublime-*
 
-# 忽略 Git 相关文件
-.git/
-.gitignore
+# OS specific files
+.DS_Store
+Thumbs.db
 
-# 忽略 Docker 相关文件自身 (可选)
-Dockerfile
-.dockerignore
-docker-compose.yml
+# Environment variables file
+.env
+*.env
+.env.*
 
-# 忽略本地数据库文件 (如果不想包含在镜像中)
-shortener.db
-*.db
-*.sqlite
-*.sqlite3
+# Build artifacts
+dist/
+build/
+*.egg-info/
 
-# 忽略测试报告或覆盖率文件
+# Test outputs
 .pytest_cache/
 .coverage
 htmlcov/
 
-# 忽略可能的本地配置文件
-.env
+# Docker related files (if managing docker within project, adjust as needed)
+# Usually Dockerfile and docker-compose.yml are kept
+# .dockerignore # Don't ignore the ignore file itself
+
+# Specific project files to ignore
+# e.g., local_settings.py
+db_data/
+*.sqlite
+*.sqlite3

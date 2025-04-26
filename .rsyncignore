@@ -1,0 +1,65 @@
+# Python 虚拟环境
+.venv/
+venv/
+env/
+virtualenv/
+
+# Python 缓存文件
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# IDE 和编辑器文件
+.idea/
+.vscode/
+*.sublime-*
+*.swp
+*.swo
+*~
+
+# Git 相关
+.git/
+.gitignore
+.gitattributes
+.github/
+
+# 构建和分发
+build/
+dist/
+*.egg-info/
+eggs/
+.eggs/
+
+# 测试和覆盖率报告
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+nosetests.xml
+coverage.xml
+*.cover
+
+# 本地配置和数据
+.env
+*.env
+.env.*
+*.log
+*.db
+*.sqlite
+*.sqlite3
+
+# 系统文件
+.DS_Store
+Thumbs.db
+
+# Docker 相关 (注：这里我们保留了 Dockerfile 和 docker-compose.yml)
+.dockerignore
+.docker/
+
+# 其他临时文件或大文件
+tmp/
+temp/
+.tmp/
+.temp/
